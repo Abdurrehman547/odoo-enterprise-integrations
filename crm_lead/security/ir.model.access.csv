@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_microsoft_ads_conversion_queue_system,microsoft.ads.conversion.queue system,model_microsoft_ads_conversion_queue,base.group_system,1,1,1,1
+access_meta_ads_conversion_queue,meta.ads.conversion.queue,model_meta_ads_conversion_queue,base.group_system,1,1,1,1
+access_microsoft_ads_service,microsoft.ads.service,model_microsoft_ads_service,base.group_system,1,1,1,1

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Override the sale_extension supplier record rule so that vendors
+        without a country (country_id = False) remain accessible to sale
+        users. The original rule [('partner_id.country_id.code','!=','CN')]
+        silently excludes suppliers whose partner has no country, which
+        raised an access-rights error when creating an RFQ for such a vendor.
+    -->
+    <record id="sale_extension.sale_extention_supplier_user_rule" model="ir.rule">
+        <field name="domain_force">['|',('partner_id.country_id','=',False),('partner_id.country_id.code','!=','CN')]</field>
+    </record>
+
+</odoo>
+

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="auth_code_wizard_view_form" model="ir.ui.view">
+        <field name="name">authentication.wizard.form.dropbox.integration</field>
+        <field name="model">authentication.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Dropbox Authorization">
+                <group>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Step 1:</strong> Click the link below to open Dropbox and grant authorization.<br/>
+                        <strong>Step 2:</strong> Copy the code displayed by Dropbox and paste it into the field below.
+                    </div>
+                </group>
+                <group>
+                    <field name="dropbox_auth_url"
+                           widget="url"
+                           text="Click Here to Authorize Dropbox"
+                           readonly="1"
+                           nolabel="1"/>
+                </group>
+                <group>
+                    <field name="dropbox_authorization_code"
+                           placeholder="Paste Dropbox Authorization Code here..."
+                           required="1"/>
+                </group>
+                <footer>
+                    <button string="Connect Dropbox"
+                            type="object"
+                            name="action_setup_dropbox_token"
+                            class="btn-primary"
+                            data-hotkey="q"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"
+                            data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

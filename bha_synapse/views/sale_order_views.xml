@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_order_form_synapse" model="ir.ui.view">
+        <field name="name">sale.order.form.synapse</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_synapse_shipments" type="object"
+                        class="oe_stat_button" icon="fa-truck"
+                        invisible="not synapse_shipment_count">
+                    <field name="synapse_shipment_count" widget="statinfo" string="Shipments"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page name="synapse_page" string="Synapse Anywhere">
+                    <group>
+                        <group name="synapse_sync" string="Synchronization">
+                            <field name="synapse_to_send"/>
+                            <field name="synapse_customer_packing_list"/>
+                            <field name="synapse_connection_id"/>
+                            <field name="synapse_status"/>
+                            <field name="synapse_order_status"/>
+                        </group>
+                        <group name="synapse_refs" string="Synapse References">
+                            <field name="synapse_orderid"/>
+                            <field name="synapse_shipid"/>
+                            <field name="synapse_wave"/>
+                            <field name="synapse_shipped_date"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Dedicated Synapse Orders list (Odoo -> Synapse outbound orders) -->
+    <record id="view_order_synapse_list" model="ir.ui.view">
+        <field name="name">sale.order.synapse.list</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Synapse Orders" create="false"
+                  decoration-success="synapse_status == 'shipped'"
+                  decoration-info="synapse_status == 'sent'"
+                  decoration-danger="synapse_status == 'failed'"
+                  decoration-warning="synapse_to_send and not synapse_orderid"
+                  decoration-muted="synapse_status == 'cancelled'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_order"/>
+                <field name="state"/>
+                <field name="synapse_to_send" string="To Send"/>
+                <field name="synapse_customer_packing_list"
+                       string="Customer Packing List" optional="hide"/>
+                <field name="synapse_status"/>
+                <field name="synapse_order_status"/>
+                <field name="synapse_orderid"/>
+                <field name="synapse_shipid"/>
+                <field name="synapse_wave" optional="hide"/>
+                <field name="synapse_shipped_date" optional="hide"/>
+                <field name="synapse_connection_id" optional="hide"/>
+                <field name="amount_total" sum="Total"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_order_synapse_search" model="ir.ui.view">
+        <field name="name">sale.order.synapse.search</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="synapse_orderid"/>
+                <filter name="to_send" string="To Send"
+                        domain="[('synapse_to_send', '=', True)]"/>
+                <filter name="sent" string="Sent to Synapse"
+                        domain="[('synapse_status', '=', 'sent')]"/>
+                <filter name="shipped" string="Shipped"
+                        domain="[('synapse_status', '=', 'shipped')]"/>
+                <filter name="in_synapse" string="In Synapse"
+                        domain="[('synapse_orderid', '!=', False)]"/>
+                <separator/>
+                <filter name="confirmed" string="Confirmed"
+                        domain="[('state', 'in', ['sale', 'done'])]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_status" string="Synapse Status"
+                            context="{'group_by': 'synapse_status'}"/>
+                    <filter name="g_conn" string="Connection"
+                            context="{'group_by': 'synapse_connection_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_synapse_orders" model="ir.actions.act_window">
+        <field name="name">Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_order_synapse_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_order_synapse_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('sale.view_order_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No orders here yet</p>
+            <p>Orders are sent <b>from Odoo to Synapse</b>. Open a confirmed
+               Sale Order and click <b>Send to Synapse</b>, then process the
+               sync queue. Sent orders appear here with their Synapse Order ID.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_synapse_orders" name="Orders"
+              parent="menu_synapse_root" action="action_synapse_orders" sequence="15"/>
+</odoo>
+

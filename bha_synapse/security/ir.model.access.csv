@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_synapse_connection,synapse.connection,model_synapse_connection,base.group_user,1,1,1,1
+access_synapse_inventory_line,synapse.inventory.line,model_synapse_inventory_line,base.group_user,1,1,1,1
+access_synapse_shipment,synapse.shipment,model_synapse_shipment,base.group_user,1,1,1,1
+access_synapse_shipment_line,synapse.shipment.line,model_synapse_shipment_line,base.group_user,1,1,1,1
+access_synapse_order_wizard,synapse.order.wizard,model_synapse_order_wizard,base.group_user,1,1,1,1
+access_synapse_order_wizard_line,synapse.order.wizard.line,model_synapse_order_wizard_line,base.group_user,1,1,1,1
+access_synapse_purchase_order_wizard,synapse.purchase.order.wizard,model_synapse_purchase_order_wizard,base.group_user,1,1,1,1
+access_synapse_purchase_order_wizard_line,synapse.purchase.order.wizard.line,model_synapse_purchase_order_wizard_line,base.group_user,1,1,1,1
+access_synapse_attachment_upload_wizard,synapse.attachment.upload.wizard,model_synapse_attachment_upload_wizard,base.group_user,1,1,1,1
+access_synapse_queue_job,synapse.queue.job,model_synapse_queue_job,base.group_user,1,1,1,1
+access_synapse_log,synapse.log,model_synapse_log,base.group_user,1,1,1,1
+access_synapse_dashboard,synapse.dashboard,model_synapse_dashboard,base.group_user,1,1,1,1
+

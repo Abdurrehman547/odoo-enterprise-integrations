@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Duoplane Config Form View -->
+    <record id="view_duoplane_config_form" model="ir.ui.view">
+        <field name="name">duoplane.config.form</field>
+        <field name="model">duoplane.config</field>
+        <field name="arch" type="xml">
+            <form string="Duoplane Configuration">
+                <header>
+                    <button name="action_test_connection"
+                            string="Test Connection"
+                            type="object"
+                            class="oe_highlight"/>
+                    <button name="action_sync_orders"
+                            string="Sync Now"
+                            type="object"
+                            class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_duoplane_sync_wizard)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-refresh">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Manual</span>
+                                <span class="o_stat_text">Sync</span>
+                            </div>
+                        </button>
+                    </div>
+
+<!--                    <widget name="web_ribbon"-->
+<!--                            title="Archived"-->
+<!--                            bg_color="bg-danger"-->
+<!--                            attrs="{'invisible': [('active', '=', True)]}"/>-->
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Configuration Name"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="API Credentials">
+                            <field name="active"/>
+                            <field name="api_url"/>
+                            <field name="api_key" password="True"/>
+                            <field name="api_password" password="True"/>
+                        </group>
+
+                        <group string="Sync Settings">
+                            <field name="auto_create_products"/>
+                            <field name="auto_create_partners"/>
+                            <field name="default_product_type"/>
+                            <field name="default_product_categ_id"/>
+                            <field name="delivery_carrier_id"/>
+                            <field name="sync_date_from"/>
+                            <field name="sync_unfulfilled_only"/>
+                        </group>
+                    </group>
+
+                    <group string="Sync Status">
+                        <group>
+                            <field name="last_sync_date"/>
+                            <field name="last_sync_status"/>
+                        </group>
+                        <group>
+                            <field name="total_orders_synced"/>
+                            <field name="total_products_created"/>
+                            <field name="total_partners_created"/>
+                        </group>
+                    </group>
+
+<!--                    <group string="Last Sync Message"-->
+<!--                           attrs="{'invisible': [('last_sync_message', '=', False)]}">-->
+<!--                        <field name="last_sync_message" nolabel="1" colspan="2"/>-->
+<!--                    </group>-->
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+<!--    &lt;!&ndash; Duoplane Config Tree View &ndash;&gt;-->
+<!--    <record id="view_duoplane_config_tree" model="ir.ui.view">-->
+<!--        <field name="name">duoplane.config.tree</field>-->
+<!--        <field name="model">duoplane.config</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <tree string="Duoplane Configurations">-->
+<!--                <field name="name"/>-->
+<!--                <field name="active"/>-->
+<!--                <field name="last_sync_date"/>-->
+<!--                <field name="last_sync_status"/>-->
+<!--                <field name="total_orders_synced"/>-->
+<!--            </tree>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    <!-- Duoplane Config Action -->
+    <record id="action_duoplane_config" model="ir.actions.act_window">
+        <field name="name">Duoplane Settings</field>
+        <field name="res_model">duoplane.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure Duoplane Integration
+            </p>
+            <p>
+                Set up your Duoplane API credentials to start syncing orders.
+            </p>
+        </field>
+    </record>
+</odoo>

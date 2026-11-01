@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_picking_form_synapse" model="ir.ui.view">
+        <field name="name">stock.picking.form.synapse</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_synapse_shipments" type="object"
+                        class="oe_stat_button" icon="fa-truck"
+                        invisible="not synapse_shipment_count">
+                    <field name="synapse_shipment_count" widget="statinfo" string="Shipments"/>
+                </button>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_send_to_synapse" string="Send to Synapse"
+                        type="object" class="oe_highlight"
+                        invisible="synapse_orderid or picking_type_code != 'outgoing' or state in ('draft', 'done', 'cancel')"/>
+                <button name="action_update_synapse" string="Update Synapse (Shipping)"
+                        type="object"
+                        invisible="not synapse_orderid or synapse_status == 'cancelled' or picking_type_code != 'outgoing'"/>
+                <button name="action_resync_synapse" string="Resync Order (Replace)"
+                        type="object"
+                        confirm="This cancels the current Synapse order and creates a new one from this delivery's current lines, address and shipping. The Synapse Order ID will change. Continue?"
+                        invisible="synapse_status not in ('sent', 'shipped') or picking_type_code != 'outgoing'"/>
+                <button name="action_cancel_synapse" string="Cancel in Synapse"
+                        type="object"
+                        confirm="Cancel this delivery's order in Synapse? The delivery itself is NOT cancelled in Odoo."
+                        invisible="not synapse_orderid or synapse_status == 'cancelled' or picking_type_code != 'outgoing'"/>
+                <button name="action_refresh_synapse_status" string="Refresh Synapse Status"
+                        type="object"
+                        invisible="not synapse_orderid or picking_type_code != 'outgoing'"/>
+                <button name="action_upload_file_to_synapse" string="Upload File to Synapse"
+                        type="object"
+                        invisible="not synapse_orderid or picking_type_code != 'outgoing'"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="synapse_page" string="Synapse Anywhere" invisible="picking_type_code != 'outgoing'">
+                    <group>
+                        <group name="synapse_sync" string="Synchronization">
+                            <field name="synapse_to_send"/>
+                            <field name="synapse_customer_packing_list"/>
+                            <field name="synapse_connection_id"/>
+                            <field name="synapse_status"/>
+                            <field name="synapse_order_status"/>
+                        </group>
+                        <group name="synapse_refs" string="Synapse References">
+                            <field name="synapse_orderid"/>
+                            <field name="synapse_shipid"/>
+                            <field name="synapse_wave"/>
+                            <field name="synapse_shipped_date"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Dedicated Synapse Deliveries list (Odoo -> Synapse outbound deliveries) -->
+    <record id="view_picking_synapse_list" model="ir.ui.view">
+        <field name="name">stock.picking.synapse.list</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <list string="Synapse Deliveries" create="false"
+                  decoration-success="synapse_status == 'shipped'"
+                  decoration-info="synapse_status == 'sent'"
+                  decoration-danger="synapse_status == 'failed'"
+                  decoration-warning="synapse_to_send and not synapse_orderid"
+                  decoration-muted="synapse_status == 'cancelled'">
+                <field name="name"/>
+                <field name="origin" string="Source Document"/>
+                <field name="partner_id"/>
+                <field name="scheduled_date"/>
+                <field name="state"/>
+                <field name="synapse_to_send" string="To Send"/>
+                <field name="synapse_customer_packing_list"
+                       string="Customer Packing List" optional="hide"/>
+                <field name="synapse_status"/>
+                <field name="synapse_order_status"/>
+                <field name="synapse_orderid"/>
+                <field name="synapse_shipid"/>
+                <field name="synapse_wave" optional="hide"/>
+                <field name="synapse_shipped_date" optional="hide"/>
+                <field name="synapse_connection_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_picking_synapse_search" model="ir.ui.view">
+        <field name="name">stock.picking.synapse.search</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="origin"/>
+                <field name="partner_id"/>
+                <field name="synapse_orderid"/>
+                <filter name="to_send" string="To Send"
+                        domain="[('synapse_to_send', '=', True)]"/>
+                <filter name="sent" string="Sent to Synapse"
+                        domain="[('synapse_status', '=', 'sent')]"/>
+                <filter name="shipped" string="Shipped"
+                        domain="[('synapse_status', '=', 'shipped')]"/>
+                <filter name="in_synapse" string="In Synapse"
+                        domain="[('synapse_orderid', '!=', False)]"/>
+                <separator/>
+                <filter name="ready" string="Ready"
+                        domain="[('state', '=', 'assigned')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_status" string="Synapse Status"
+                            context="{'group_by': 'synapse_status'}"/>
+                    <filter name="g_order_status" string="Synapse Order Status"
+                            context="{'group_by': 'synapse_order_status'}"/>
+                    <filter name="g_partner" string="Customer"
+                            context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_synapse_pickings" model="ir.actions.act_window">
+        <field name="name">Synapse Deliveries</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('picking_type_code', '=', 'outgoing'), '|', ('synapse_to_send', '=', True), ('synapse_orderid', '!=', False)]</field>
+        <field name="search_view_id" ref="view_picking_synapse_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No delivery orders for Synapse found.
+            </p>
+            <p>Delivery orders are sent <b>from Odoo to Synapse</b> for warehouse fulfillment.</p>
+        </field>
+    </record>
+
+    <record id="action_synapse_pickings_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_picking_synapse_list"/>
+        <field name="act_window_id" ref="action_synapse_pickings"/>
+    </record>
+
+    <menuitem id="menu_synapse_pickings" name="Deliveries"
+              parent="menu_synapse_root" action="action_synapse_pickings" sequence="24"/>
+</odoo>

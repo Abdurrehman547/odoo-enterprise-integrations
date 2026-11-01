@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Duoplane Menu -->
+    <menuitem id="menu_duoplane_root"
+              name="Duoplane"
+              web_icon="duoplane_integration,static/description/icon.png"
+              sequence="50"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_duoplane_config"
+              name="Configuration"
+              parent="menu_duoplane_root"
+              sequence="10"/>
+
+    <menuitem id="menu_duoplane_settings"
+              name="Settings"
+              parent="menu_duoplane_config"
+              action="action_duoplane_config"
+              sequence="1"/>
+
+    <!-- Orders Menu -->
+    <menuitem id="menu_duoplane_orders"
+              name="Orders"
+              parent="menu_duoplane_root"
+              action="action_duoplane_orders"
+              sequence="20"/>
+</odoo>

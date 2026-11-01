@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Default Configuration -->
+        <record id="default_duoplane_config" model="duoplane.config">
+            <field name="name">Duoplane API</field>
+            <field name="api_url">https://app.duoplane.com</field>
+            <field name="api_key">your_api_key_here</field>
+            <field name="api_password">your_api_password_here</field>
+            <field name="auto_create_products" eval="True"/>
+            <field name="auto_create_partners" eval="True"/>
+            <field name="default_product_type">product</field>
+            <field name="sync_unfulfilled_only" eval="True"/>
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>

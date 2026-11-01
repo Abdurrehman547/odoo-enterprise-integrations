@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_synapse_inventory_list" model="ir.ui.view">
+        <field name="name">synapse.inventory.line.list</field>
+        <field name="model">synapse.inventory.line</field>
+        <field name="arch" type="xml">
+<list string="Synapse Inventory" create="false">
+                <field name="facility"/>
+                <field name="custid"/>
+                <field name="item"/>
+                <field name="product_id"/>
+                <field name="lot_number"/>
+                <field name="uom"/>
+                <field name="qty" sum="Qty"/>
+                <field name="odoo_qty"/>
+                <field name="variance"/>
+                <field name="weight"/>
+                <field name="inventory_status_desc"/>
+                <field name="matched" widget="boolean_toggle" optional="hide"/>
+                <field name="last_sync"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_synapse_inventory_search" model="ir.ui.view">
+        <field name="name">synapse.inventory.line.search</field>
+        <field name="model">synapse.inventory.line</field>
+        <field name="arch" type="xml">
+<search>
+                <field name="item"/>
+                <field name="product_id"/>
+                <field name="facility"/>
+                <filter name="unmatched" string="Unmatched" domain="[('product_id','=',False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_facility" string="Facility" context="{'group_by':'facility'}"/>
+                    <filter name="group_status" string="Status" context="{'group_by':'inventory_status_desc'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_synapse_inventory" model="ir.actions.act_window">
+        <field name="name">{'en_US': 'Inventory'}</field>
+        <field name="res_model">synapse.inventory.line</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_synapse_inventory_search"/>
+    </record>
+
+    <menuitem id="menu_synapse_inventory" name="Inventory" parent="menu_synapse_root" action="action_synapse_inventory" sequence="20"/>
+</odoo>

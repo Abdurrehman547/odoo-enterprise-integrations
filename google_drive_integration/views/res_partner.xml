@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_partner_form_inherit_gdrive" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.gdrive</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet" position="before">
+                    <header>
+                        <button name="action_create_gdrive_wizard"
+                                string="Create Google Drive Folder"
+                                type="object"
+                                class="oe_highlight"
+                                invisible="gdrive_folder_link"/>
+                        <button name="action_upload_gdrive_wizard"
+                                string="Upload to Google Drive"
+                                type="object"
+                                class="btn-primary"
+                                invisible="not gdrive_folder_link"
+                                icon="fa-cloud-upload"/>
+                    </header>
+                </xpath>
+                <xpath expr="//field[@name='vat']" position="after">
+                    <field name="gdrive_folder_link" widget="url" readonly="1"/>
+                    <field name="gdrive_folder_id" invisible="1"/>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button class="oe_stat_button" type="object"
+                            name="action_open_gdrive_link"
+                            icon="fa-google"
+                            invisible="not gdrive_folder_link">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Google Drive</span>
+                        </div>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="res_partner_kanban_view_gdrive" model="ir.ui.view">
+            <field name="name">res.partner.view.kanban.gdrive</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+            <field name="priority" eval="30"/>
+            <field name="arch" type="xml">
+                <xpath expr="//footer" position="inside">
+                    <a type="object"
+                       name="action_open_gdrive_link"
+                       title="Google Drive"
+                       class="ms-2"
+                       invisible="not gdrive_folder_link">
+                        <i class="fa fa-google"/>
+                    </a>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

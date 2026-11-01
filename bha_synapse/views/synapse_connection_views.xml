@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_synapse_connection_form" model="ir.ui.view">
+        <field name="name">synapse.connection.form</field>
+        <field name="model">synapse.connection</field>
+        <field name="arch" type="xml">
+            <form string="Synapse Connection">
+                <header>
+                    <button name="test_connection" string="Test Connection"
+                            type="object" class="oe_highlight" data-hotkey="q"/>
+                    <button name="action_enqueue_inventory" string="Pull Inventory" type="object"/>
+                    <button name="action_enqueue_shipments" string="Pull Shipments" type="object"/>
+                    <button name="action_process_queue" string="Process Queue" type="object"/>
+                    <button name="action_send_pending_packing_slips" string="Send Packing Slips"
+                            type="object" invisible="not auto_send_packing_slip"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Synapse Test"/></h1>
+                    </div>
+                    <group>
+                        <group string="Connection">
+                            <field name="base_url"/>
+                            <field name="auth_type"/>
+                            <field name="token" password="True"
+                                   invisible="auth_type == 'session'"/>
+                            <field name="username" invisible="auth_type != 'session'"/>
+                            <field name="password" password="True"
+                                   invisible="auth_type != 'session'"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Scope &amp; Defaults">
+                            <field name="custid"/>
+                            <field name="facility"/>
+                            <field name="default_order_type"/>
+                            <field name="default_priority"/>
+                            <field name="default_uom"/>
+                            <field name="from_facility"/>
+                            <field name="to_facility"/>
+                            <field name="shipping_service_key"/>
+                            <field name="default_shipping_service"/>
+                        </group>
+                        <group string="Inbound (Purchase Orders)">
+                            <field name="default_inbound_order_type"/>
+                            <field name="inbound_warehouse_id"/>
+                            <field name="inbound_to_facility"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Inventory Reconciliation">
+                            <field name="auto_reconcile_inventory"/>
+                            <field name="inventory_location_id"
+                                   invisible="not auto_reconcile_inventory"
+                                   required="auto_reconcile_inventory"/>
+                        </group>
+                        <group string="Packing Slip &amp; Delivery Automation">
+                            <field name="auto_send_packing_slip" widget="boolean_toggle"/>
+                            <field name="auto_validate_delivery" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Sync Status">
+                            <field name="last_inventory_sync"/>
+                            <field name="last_shipment_sync"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_synapse_connection_list" model="ir.ui.view">
+        <field name="name">synapse.connection.list</field>
+        <field name="model">synapse.connection</field>
+        <field name="arch" type="xml">
+            <list string="Synapse Connections">
+                <field name="name"/>
+                <field name="base_url"/>
+                <field name="auth_type"/>
+                <field name="custid"/>
+                <field name="facility"/>
+                <field name="auto_send_packing_slip" widget="boolean_toggle"/>
+                <field name="auto_validate_delivery" widget="boolean_toggle" optional="show"/>
+                <field name="last_inventory_sync"/>
+                <field name="last_shipment_sync"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_synapse_connection" model="ir.actions.act_window">
+        <field name="name">Connections</field>
+        <field name="res_model">synapse.connection</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_synapse_config" name="Configuration"
+              parent="menu_synapse_root" sequence="90"/>
+    <menuitem id="menu_synapse_connection" name="Connections"
+              parent="menu_synapse_config" action="action_synapse_connection" sequence="10"/>
+</odoo>
+

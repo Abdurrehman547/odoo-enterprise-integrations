@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_synapse_dashboard_kanban" model="ir.ui.view">
+        <field name="name">synapse.dashboard.kanban</field>
+        <field name="model">synapse.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban class="o_synapse_dashboard" create="false">
+                <field name="connection_count"/>
+                <field name="inventory_count"/>
+                <field name="shipment_count"/>
+                <field name="order_count"/>
+                <field name="purchase_order_count"/>
+                <field name="queue_new_count"/>
+                <field name="queue_progress_count"/>
+                <field name="queue_done_count"/>
+                <field name="queue_failed_count"/>
+                <field name="log_failed_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="synapse_dash_wrap">
+                            <div class="synapse_dash_toolbar">
+                                <button name="action_process_queue" type="object"
+                                        class="btn btn-primary">
+                                    <i class="fa fa-play me-1"/> Process Queue Now
+                                </button>
+                                <button name="action_reconcile_synapse" type="object"
+                                        class="btn btn-secondary"
+                                        confirm="Retry stuck orders/shipments and force-correct any inventory variance against Synapse now?">
+                                    <i class="fa fa-refresh me-1"/> Reconcile Synapse
+                                </button>
+                            </div>
+
+                            <div class="synapse_dash_section_title">Integration</div>
+                            <div class="synapse_slider">
+                                <button class="synapse_tile" name="get_connections" type="object">
+                                    <span class="synapse_icon c_plug"><i class="fa fa-plug" title="Connections"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="connection_count"/></span>
+                                        <span class="synapse_label">Connections</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_inventory" type="object">
+                                    <span class="synapse_icon c_cubes"><i class="fa fa-cubes" title="Inventory Items"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="inventory_count"/></span>
+                                        <span class="synapse_label">Inventory Items</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_shipments" type="object">
+                                    <span class="synapse_icon c_truck"><i class="fa fa-truck" title="Shipments"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="shipment_count"/></span>
+                                        <span class="synapse_label">Shipments</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_orders" type="object">
+                                    <span class="synapse_icon c_cart"><i class="fa fa-shopping-cart" title="Synapse Orders"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="order_count"/></span>
+                                        <span class="synapse_label">Synapse Orders</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_purchase_orders" type="object">
+                                    <span class="synapse_icon c_truck"><i class="fa fa-truck-loading" title="Inbound POs"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="purchase_order_count"/></span>
+                                        <span class="synapse_label">Inbound POs</span>
+                                    </span>
+                                </button>
+                            </div>
+
+                            <div class="synapse_dash_section_title">Sync Queue</div>
+                            <div class="synapse_slider">
+                                <button class="synapse_tile" name="get_queue_new" type="object">
+                                    <span class="synapse_icon c_new"><i class="fa fa-inbox" title="New"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="queue_new_count"/></span>
+                                        <span class="synapse_label">New</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_queue_progress" type="object">
+                                    <span class="synapse_icon c_progress"><i class="fa fa-spinner" title="In Progress"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="queue_progress_count"/></span>
+                                        <span class="synapse_label">In Progress</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_queue_done" type="object">
+                                    <span class="synapse_icon c_done"><i class="fa fa-check" title="Done"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="queue_done_count"/></span>
+                                        <span class="synapse_label">Done</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_queue_failed" type="object">
+                                    <span class="synapse_icon c_failed"><i class="fa fa-times" title="Failed"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="queue_failed_count"/></span>
+                                        <span class="synapse_label">Failed</span>
+                                    </span>
+                                </button>
+                                <button class="synapse_tile" name="get_failed_logs" type="object">
+                                    <span class="synapse_icon c_log"><i class="fa fa-exclamation-triangle" title="Failed Logs"/></span>
+                                    <span class="synapse_cont">
+                                        <span class="synapse_count"><field name="log_failed_count"/></span>
+                                        <span class="synapse_label">Failed Logs</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_synapse_dashboard" model="ir.actions.server">
+        <field name="name">Dashboard</field>
+        <field name="model_id" ref="model_synapse_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_dashboard()</field>
+    </record>
+
+    <menuitem id="menu_synapse_root" name="Synapse"
+              web_icon="bha_synapse,static/description/icon.png" sequence="95"/>
+    <menuitem id="menu_synapse_dashboard" name="Dashboard"
+              parent="menu_synapse_root" action="action_synapse_dashboard" sequence="5"/>
+</odoo>
+

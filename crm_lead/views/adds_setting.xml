@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_ads" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.ads</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='general_settings']" position="inside">
+                <h2>Ads Integration Settings</h2>
+                <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Meta Ads Configuration</span>
+                            <div class="text-muted">Configure Meta Ads API credentials</div>
+                            <div class="content-group mt16">
+                                <div class="row mt8">
+                                    <label for="meta_access_token" class="col-3 o_light_label"/>
+                                    <field name="meta_access_token" placeholder="Access Token" password="True"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="meta_pixel_id" class="col-3 o_light_label"/>
+                                    <field name="meta_pixel_id" placeholder="Pixel ID"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="meta_test_event_code" class="col-3 o_light_label"/>
+                                    <field name="meta_test_event_code" placeholder="Test Event Code"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Bing Ads Configuration</span>
+                            <div class="text-muted">Configure Bing Ads API credentials</div>
+                            <div class="content-group mt16">
+                                <div class="row mt8">
+                                    <label for="bing_account_id" class="col-3 o_light_label"/>
+                                    <field name="bing_account_id" placeholder="Account ID"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_client_id" class="col-3 o_light_label"/>
+                                    <field name="bing_client_id" placeholder="Client ID"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_client_secret" class="col-3 o_light_label"/>
+                                    <field name="bing_client_secret" placeholder="Client Secret" password="True"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_customer_id" class="col-3 o_light_label"/>
+                                    <field name="bing_customer_id" placeholder="Customer ID"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_developer_token" class="col-3 o_light_label"/>
+                                    <field name="bing_developer_token" placeholder="Developer Token"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_refresh_token" class="col-3 o_light_label"/>
+                                    <field name="bing_refresh_token" placeholder="Refresh Token" password="True"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_tenant_id" class="col-3 o_light_label"/>
+                                    <field name="bing_tenant_id" placeholder="Tenant ID"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_qualified_goal_name" class="col-3 o_light_label"/>
+                                    <field name="bing_qualified_goal_name" placeholder="Odoo - Qualified Lead"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="bing_won_goal_name" class="col-3 o_light_label"/>
+                                    <field name="bing_won_goal_name" placeholder="Odoo - Lead/Closed Won"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Conversion Failure Alerts</span>
+                            <div class="text-muted">Emailed whenever an Odoo conversion upload to Google or Microsoft Ads fails</div>
+                            <div class="content-group mt16">
+                                <div class="row mt8">
+                                    <label for="conversion_failure_emails" class="col-3 o_light_label"/>
+                                    <field name="conversion_failure_emails" placeholder="ben@client.com, dev@agency.com"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="auto_conversion_start_date" class="col-3 o_light_label"/>
+                                    <field name="auto_conversion_start_date"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Microsoft Ads Conversion Queue Views & Action -->
+    <record id="view_microsoft_ads_conversion_queue_list" model="ir.ui.view">
+        <field name="name">microsoft.ads.conversion.queue.list</field>
+        <field name="model">microsoft.ads.conversion.queue</field>
+        <field name="arch" type="xml">
+            <list string="Microsoft Ads Conversion Queue" decoration-danger="state == 'failed'" decoration-success="state == 'sent'" decoration-info="state == 'pending'">
+                <field name="create_date" string="Queued At"/>
+                <field name="lead_id"/>
+                <field name="conversion_name"/>
+                <field name="msclkid"/>
+                <field name="conversion_time"/>
+                <field name="conversion_value"/>
+                <field name="is_backfill" optional="show"/>
+                <field name="state" widget="badge"/>
+                <field name="attempt_count"/>
+                <field name="error_message"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_microsoft_ads_conversion_queue_form" model="ir.ui.view">
+        <field name="name">microsoft.ads.conversion.queue.form</field>
+        <field name="model">microsoft.ads.conversion.queue</field>
+        <field name="arch" type="xml">
+            <form string="Microsoft Ads Conversion Queue Record">
+                <header>
+                    <button name="action_send_now" type="object" string="Send Now" class="btn-primary" invisible="state == 'sent'"/>
+                    <button name="action_reset_to_pending" type="object" string="Reset to Pending" class="btn-secondary" invisible="state == 'pending'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,sent,failed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="lead_id"/>
+                            <field name="conversion_name"/>
+                            <field name="msclkid"/>
+                        </group>
+                        <group>
+                            <field name="conversion_time"/>
+                            <field name="conversion_value"/>
+                            <field name="currency_id"/>
+                            <field name="is_backfill"/>
+                        </group>
+                    </group>
+                    <group string="Send Status &amp; Diagnostics">
+                        <field name="attempt_count"/>
+                        <field name="last_attempt_at"/>
+                        <field name="error_message" invisible="not error_message"/>
+                        <field name="payload_sent" widget="text" invisible="not payload_sent"/>
+                        <field name="response_received" widget="text" invisible="not response_received"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_microsoft_ads_queue_send_now" model="ir.actions.server">
+        <field name="name">Send Now to Microsoft Ads</field>
+        <field name="model_id" ref="model_microsoft_ads_conversion_queue"/>
+        <field name="binding_model_id" ref="model_microsoft_ads_conversion_queue"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_send_now()</field>
+    </record>
+
+    <record id="action_microsoft_ads_queue_reset_pending" model="ir.actions.server">
+        <field name="name">Reset to Pending</field>
+        <field name="model_id" ref="model_microsoft_ads_conversion_queue"/>
+        <field name="binding_model_id" ref="model_microsoft_ads_conversion_queue"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">records.action_reset_to_pending()</field>
+    </record>
+
+    <record id="action_microsoft_ads_queue_void" model="ir.actions.server">
+        <field name="name">Void Records</field>
+        <field name="model_id" ref="model_microsoft_ads_conversion_queue"/>
+        <field name="binding_model_id" ref="model_microsoft_ads_conversion_queue"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">records.action_void()</field>
+    </record>
+
+    <record id="action_microsoft_ads_conversion_queue" model="ir.actions.act_window">
+        <field name="name">Microsoft Conversion Queue</field>
+        <field name="res_model">microsoft.ads.conversion.queue</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem id="menu_microsoft_ads_conversion_queue" name="Microsoft Conversion Queue" parent="crm.crm_menu_config" action="action_microsoft_ads_conversion_queue" sequence="105"/>
+</odoo>

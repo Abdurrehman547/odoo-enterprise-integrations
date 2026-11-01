@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_authentication_wizard_user,access.authentication.wizard.user,model_authentication_wizard,base.group_user,1,1,1,1
+access_dropbox_folder_wizard,dropbox.folder.wizard,model_dropbox_folder_wizard,base.group_user,1,1,1,1
+access_dropbox_upload_wizard,dropbox.upload.wizard,model_dropbox_upload_wizard,base.group_user,1,1,1,1

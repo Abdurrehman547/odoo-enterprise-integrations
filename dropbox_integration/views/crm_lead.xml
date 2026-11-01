@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_crm_lead_form_inherit_dropbox" model="ir.ui.view">
+            <field name="name">crm.lead.form.inherit.dropbox</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="action_create_dropbox_wizard"
+                            string="Create Dropbox Folder"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="dropbox_folder_link"/>
+                    <button name="action_upload_dropbox_wizard"
+                            string="Upload to Dropbox"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not dropbox_folder_link"
+                            icon="fa-cloud-upload"/>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button class="oe_stat_button" type="object"
+                            name="action_open_dropbox_link"
+                            icon="fa-dropbox"
+                            invisible="not dropbox_folder_link">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Dropbox</span>
+                        </div>
+                    </button>
+                </xpath>
+                <xpath expr="//label[@for='date_deadline']" position="before">
+                    <field name="dropbox_folder_link" widget="url" readonly="1"/>
+                    <field name="dropbox_folder_path" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="crm_lead_kanban_view_dropbox" model="ir.ui.view">
+            <field name="name">crm.lead.view.kanban.dropbox</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+            <field name="priority" eval="30"/>
+            <field name="arch" type="xml">
+                <xpath expr="//footer" position="inside">
+                    <a type="object"
+                       name="action_open_dropbox_link"
+                       title="Dropbox"
+                       class="ms-2"
+                       invisible="not dropbox_folder_link">
+                        <i class="fa fa-dropbox"/>
+                    </a>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

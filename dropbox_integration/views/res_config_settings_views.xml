@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.dropbox.integration</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='integration']" position="inside">
+                <div class="col-12 col-lg-6 o_setting_box" id="dropbox">
+                    <div class="o_setting_left_pane">
+                        <field name="dropbox_button" string="Dropbox"/>
+                    </div>
+                    <div class="o_setting_right_pane">
+                        <label for="dropbox_button" string="Dropbox"/>
+                        <div class="text-muted">
+                            Create folders in Dropbox and store shareable links on records
+                        </div>
+                        <div class="content-group mt16" invisible="not dropbox_button">
+                            <div class="row mt8">
+                                <label for="dropbox_client_id" class="col-lg-4 o_light_label"/>
+                                <field name="dropbox_client_id"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="dropbox_client_secret" class="col-lg-4 o_light_label"/>
+                                <field name="dropbox_client_secret" password="True"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="dropbox_folder_path" class="col-lg-4 o_light_label"/>
+                                <field name="dropbox_folder_path" placeholder="e.g. /Odoo_Uploads"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="dropbox_refresh_token" class="col-lg-4 o_light_label"/>
+                                <field name="dropbox_refresh_token" readonly="1"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="dropbox_auto_upload" class="col-lg-4 o_light_label"/>
+                                <field name="dropbox_auto_upload"/>
+                            </div>
+                            <div class="mt16">
+                                <button string="Setup Access Token"
+                                        type="object"
+                                        name="action_get_dropbox_auth_code"
+                                        class="btn btn-primary"
+                                        icon="fa-dropbox"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

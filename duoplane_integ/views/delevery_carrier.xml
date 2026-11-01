@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_delivery_carrier_form_duoplane_page" model="ir.ui.view">
+    <field name="name">delivery.carrier.form.duoplane.page</field>
+    <field name="model">delivery.carrier</field>
+    <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+    <field name="arch" type="xml">
+
+      <!-- Add a new tab inside the notebook -->
+      <xpath expr="//notebook" position="inside">
+
+        <page name="duoplane_pricing" string="Duoplane Pricing"
+              invisible="delivery_type == 'fixed' or delivery_type == 'base_on_rule'">
+
+          <group col="2">
+            <!-- One field per line (label on left, input on right) -->
+            <field name="x_duoplane_margin" widget="percentage"/>
+            <field name="x_duoplane_fixed_margin"/>
+            <field name="x_duoplane_free_over"/>
+            <field name="x_duoplane_free_over_amount"
+                   invisible="not x_duoplane_free_over"/>
+          </group>
+
+        </page>
+
+      </xpath>
+
+    </field>
+  </record>
+</odoo>

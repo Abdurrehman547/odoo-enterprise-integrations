@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_synapse_shipment_list" model="ir.ui.view">
+        <field name="name">synapse.shipment.list</field>
+        <field name="model">synapse.shipment</field>
+        <field name="arch" type="xml">
+<list string="Synapse Shipments" create="false">
+                <field name="orderid"/>
+                <field name="shipid"/>
+                <field name="custid"/>
+                <field name="po_number"/>
+                <field name="reference"/>
+                <field name="picking_id"/>
+                <field name="sale_order_id"/>
+                <field name="date_shipped"/>
+                <field name="carrier"/>
+                <field name="prono"/>
+                <field name="qty_ship" sum="Qty"/>
+                <field name="order_status_label"/>
+                <field name="order_status" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_synapse_shipment_form" model="ir.ui.view">
+        <field name="name">synapse.shipment.form</field>
+        <field name="model">synapse.shipment</field>
+        <field name="arch" type="xml">
+<form string="Synapse Shipment" create="false">
+                <sheet>
+                    <div name="button_box">
+                        <button name="action_view_picking" type="object"
+                                class="oe_stat_button" icon="fa-truck"
+                                invisible="not picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Delivery</span>
+                            </div>
+                        </button>
+                        <button name="action_view_sale_order" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not sale_order_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Sale Order</span>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="orderid"/>
+                            <field name="shipid"/>
+                            <field name="custid"/>
+                            <field name="facility"/>
+                            <field name="po_number"/>
+                            <field name="reference"/>
+                            <field name="picking_id"/>
+                            <field name="sale_order_id"/>
+                        </group>
+                        <group>
+                            <field name="order_status_label"/>
+                            <field name="date_shipped"/>
+                            <field name="carrier"/>
+                            <field name="scac"/>
+                            <field name="prono"/>
+                            <field name="delivery_service"/>
+                            <field name="qty_ship"/>
+                            <field name="weight_ship"/>
+                            <field name="shipping_cost"/>
+                            <field name="last_sync"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Packages">
+                            <field name="line_ids">
+                                <list>
+                                    <field name="carton_sequence"/>
+                                    <field name="lpid"/>
+                                    <field name="item"/>
+                                    <field name="lot_number"/>
+                                    <field name="quantity"/>
+                                    <field name="uom"/>
+                                    <field name="weight"/>
+                                    <field name="carton_type"/>
+                                    <field name="tracking_number"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_synapse_shipment" model="ir.actions.act_window">
+        <field name="name">{'en_US': 'Shipments'}</field>
+        <field name="res_model">synapse.shipment</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_synapse_shipment" name="Shipments" parent="menu_synapse_root" action="action_synapse_shipment" sequence="30"/>
+</odoo>

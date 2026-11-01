@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_synapse_attachment_upload_wizard_form" model="ir.ui.view">
+        <field name="name">synapse.attachment.upload.wizard.form</field>
+        <field name="model">synapse.attachment.upload.wizard</field>
+        <field name="arch" type="xml">
+<form string="Upload File to Synapse">
+                    <field name="picking_id" invisible="not picking_id"/>
+                    <field name="sale_order_id" invisible="not sale_order_id"/>
+                    <field name="connection_id"/>
+                    <field name="attachment_file" filename="filename"/>
+                    <field name="filename" invisible="1"/>
+                </group>
+                <p class="text-muted">
+                    Any file type is accepted (PDF, PNG, JPG, ...). The file is
+                    uploaded to Synapse immediately against this order's Synapse
+                    Order ID / Ship ID.
+                </p>
+                <footer>
+                    <button name="action_upload" string="Upload to Synapse" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

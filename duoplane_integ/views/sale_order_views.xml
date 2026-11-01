@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sale Order Form View - Add Duoplane Fields -->
+    <record id="view_order_form_duoplane" model="ir.ui.view">
+        <field name="name">sale.order.form.duoplane</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='client_order_ref']" position="after">
+                <field name="x_duoplane_synced" invisible="1"/>
+                <field name="x_duoplane_po_id" readonly="1" invisible="not x_duoplane_synced"/>
+                <field name="x_retailer" readonly="1" invisible="not x_duoplane_synced"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Sale Order Tree View - Add Duoplane Indicator -->
+    <record id="view_order_tree_duoplane" model="ir.ui.view">
+        <field name="name">sale.order.tree.duoplane</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="x_duoplane_synced" optional="hide"/>
+                <field name="x_retailer" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Duoplane Orders Action -->
+    <record id="action_duoplane_orders" model="ir.actions.act_window">
+        <field name="name">Duoplane Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('x_duoplane_synced', '=', True)]</field>
+        <field name="context">{'search_default_x_duoplane_synced': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Duoplane orders yet
+            </p>
+            <p>
+                Orders synced from Duoplane will appear here.
+            </p>
+        </field>
+    </record>
+
+<!--    <record id="view_picking_form_inherit_duoplane" model="ir.ui.view">-->
+<!--        <field name="name">stock.picking.form.duoplane.button</field>-->
+<!--        <field name="model">stock.picking</field>-->
+<!--        <field name="inherit_id" ref="stock.view_picking_form"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Add button next to "Validate" &ndash;&gt;-->
+<!--            <xpath expr="//header" position="inside">-->
+<!--               <button-->
+<!--                name="action_confirm_shipment_duoplane"-->
+<!--                type="object"-->
+<!--                string="Confirm Shipment"-->
+<!--                class="btn btn-primary"-->
+<!--                />-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+    <!-- Scheduled Action -->
+    <record id="ir_cron_import_retailer_sku" model="ir.cron">
+        <field name="name">Import Retailer SKU from Excel</field>
+        <field name="model_id" ref="model_product_retailer_sku_import"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_import_retailer_sku()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

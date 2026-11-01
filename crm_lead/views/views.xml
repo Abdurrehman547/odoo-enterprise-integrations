@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="cron_meta_ads_capi_sender" model="ir.cron">
+    <field name="name">Meta Ads CAPI Sender</field>
+    <field name="model_id" ref="model_meta_ads_conversion_queue"/>
+    <field name="state">code</field>
+    <field name="code">model._send_to_meta()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">minutes</field>
+    <field name="active">True</field>
+</record>
+    <record id="cron_send_bing_offline_conversions" model="ir.cron">
+    <field name="name">Send Bing Offline Conversions</field>
+    <field name="model_id" ref="model_microsoft_ads_conversion_queue"/>
+    <field name="state">code</field>
+    <field name="code">model.send_pending_conversions()</field>
+    <field name="interval_number">10</field>
+    <field name="interval_type">minutes</field>
+    <field name="active">True</field>
+</record>
+
+
+<record id="view_crm_lead_ls_click_ids" model="ir.ui.view">
+    <field name="name">crm.lead.form.ls.click.ids</field>
+    <field name="model">crm.lead</field>
+    <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='message_bounce']/parent::group" position="after">
+            <group string="Ad Click IDs">
+                <field name="ls_fbclid"/>
+                <field name="ls_gclid"/>
+                <field name="ls_msclkid"/>
+            </group>
+        </xpath>
+    </field>
+</record>
+
+<record id="sale_order_form_no_salesperson_edit" model="ir.ui.view">
+    <field name="name">sale.order.form.no.salesperson.edit</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+        <field name="user_id" position="after">
+            <field name="is_salesperson_restricted" invisible="1"/>
+        </field>
+
+        <field name="user_id" position="attributes">
+            <attribute name="readonly">is_salesperson_restricted</attribute>
+        </field>
+    </field>
+</record>
+
+<!-- Server Action to add the option to the Action menu on Leads -->
+<record id="action_push_to_ms_ads_queue" model="ir.actions.server">
+    <field name="name">Push to MS Ads Queue</field>
+    <field name="model_id" ref="crm.model_crm_lead"/>
+    <field name="binding_model_id" ref="crm.model_crm_lead"/>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code">
+        if records:
+            records.action_push_to_ms_ads_queue()
+    </field>
+</record>
+
+</odoo>

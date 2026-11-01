@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Users in this group receive the Synapse order-status email
+             (sent / failed + reason) for every order processed by the
+             sync queue. Add users via Settings > Users. -->
+        <record id="group_synapse_notification" model="res.groups">
+            <field name="name">Synapse Order Notifications</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+    </data>
+</odoo>
+

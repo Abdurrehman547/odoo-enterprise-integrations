@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Sent after every order the sync queue pushes to Synapse (or fails to).
+         Recipients are chosen by the queue processor: every user in the
+         'Synapse Order Notifications' group. The outcome / failure reason are
+         passed through the rendering context (ctx.synapse_outcome /
+         ctx.synapse_reason). -->
+    <record id="email_template_synapse_order_status" model="mail.template">
+        <field name="name">Synapse: Order Status Notification</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="subject">Synapse order {{ object.name }}: {{ ctx.get('synapse_outcome') }}</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p>Hello,</p>
+    <p>
+        Sales order <t t-out="object.name"/> (<t t-out="object.partner_id.display_name"/>)
+        was <b t-out="ctx.get('synapse_outcome') or 'processed'"/> to Synapse.
+    </p>
+    <p t-if="object.synapse_orderid">
+        Synapse Order ID: <b t-out="object.synapse_orderid"/>
+        — Ship ID: <b t-out="object.synapse_shipid"/>
+        <t t-if="object.synapse_wave">— Wave: <b t-out="object.synapse_wave"/></t>
+    </p>
+    <p t-if="ctx.get('synapse_reason')">
+        <b>Failure reason:</b><br/>
+        <t t-out="ctx.get('synapse_reason')"/>
+    </p>
+    <p style="color: #888888;">
+        Sent automatically by the Synapse sync queue. Check the order's chatter
+        and the Synapse queue for details.
+    </p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <!-- Inbound (purchase order) twin of the template above: same recipients
+         (the queue processor picks them — every user in the 'Synapse Order
+         Notifications' group) and same outcome/reason context keys, but bound
+         to purchase.order and worded for warehouse imports. -->
+    <record id="email_template_synapse_purchase_status" model="mail.template">
+        <field name="name">Synapse: Inbound Order Status Notification</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="subject">Synapse inbound order {{ object.name }}: {{ ctx.get('synapse_outcome') }}</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p>Hello,</p>
+    <p>
+        Purchase order <t t-out="object.name"/> (<t t-out="object.partner_id.display_name"/>)
+        was <b t-out="ctx.get('synapse_outcome') or 'processed'"/> to Synapse as an inbound order.
+    </p>
+    <p t-if="object.synapse_orderid">
+        Synapse Order ID: <b t-out="object.synapse_orderid"/>
+        — Ship ID: <b t-out="object.synapse_shipid"/>
+        <t t-if="object.synapse_wave">— Wave: <b t-out="object.synapse_wave"/></t>
+    </p>
+    <p t-if="ctx.get('synapse_reason')">
+        <b>Failure reason:</b><br/>
+        <t t-out="ctx.get('synapse_reason')"/>
+    </p>
+    <p style="color: #888888;">
+        Sent automatically by the Synapse sync queue. Check the order's chatter
+        and the Synapse queue for details.
+    </p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <!-- Separate from the template above: the daily 5pm digest (shipped
+         today / generated today / open-and-aging), sent by
+         cron_send_synapse_daily_report (data/synapse_cron.xml). Row data is
+         passed as lists of dicts through the rendering context (ctx) since
+         this isn't rendered against one order but a summary across many.
+         noupdate="1" so the recipient set below is a starting default only —
+         once changed from Settings > Technical > Email Templates, a module
+         upgrade will not overwrite it. -->
+    <data noupdate="1">
+        <record id="mail_template_synapse_daily_report" model="mail.template">
+            <field name="name">Synapse: Daily Orders Report</field>
+            <field name="model_id" ref="base.model_res_company"/>
+            <field name="subject">Synapse Anywhere Daily Report — {{ ctx.get('report_date') }}</field>
+            <field name="email_to">All@baghouseamerica.com</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
+    <h2 style="margin-bottom:0;">Synapse Anywhere Daily Report</h2>
+    <p style="color:#888888;margin-top:4px;"><t t-out="ctx.get('report_date')"/></p>
+
+    <h3><t t-out="ctx.get('shipped_title')"/></h3>
+    <table t-if="ctx.get('shipped_rows')" style="border-collapse:collapse;width:100%;font-size:13px;">
+        <tr>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Order</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Customer</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Synapse Order ID</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Ship ID</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Carrier</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Tracking #</th>
+        </tr>
+        <t t-foreach="ctx.get('shipped_rows')" t-as="row">
+            <tr>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['order']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['customer']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['synapse_orderid']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['synapse_shipid']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['carrier']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['tracking']"/></td>
+            </tr>
+        </t>
+    </table>
+    <p t-if="not ctx.get('shipped_rows')" style="color:#888888;">None.</p>
+
+    <h3><t t-out="ctx.get('generated_title')"/></h3>
+    <table t-if="ctx.get('generated_rows')" style="border-collapse:collapse;width:100%;font-size:13px;">
+        <tr>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Order</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Customer</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Order Date</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Total</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Status</th>
+        </tr>
+        <t t-foreach="ctx.get('generated_rows')" t-as="row">
+            <tr>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['order']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['customer']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['order_date']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['total']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['status']"/></td>
+            </tr>
+        </t>
+    </table>
+    <p t-if="not ctx.get('generated_rows')" style="color:#888888;">None.</p>
+
+    <h3><t t-out="ctx.get('aging_title')"/></h3>
+    <table t-if="ctx.get('aging_rows')" style="border-collapse:collapse;width:100%;font-size:13px;">
+        <tr>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Order</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Customer</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Order Date</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Days Open</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Status</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Synapse WMS Status</th>
+        </tr>
+        <t t-foreach="ctx.get('aging_rows')" t-as="row">
+            <tr>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['order']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['customer']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['order_date']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['days_open']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['status']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['wms_status']"/></td>
+            </tr>
+        </t>
+    </table>
+    <p t-if="not ctx.get('aging_rows')" style="color:#888888;">None.</p>
+    <p t-if="ctx.get('aging_note')" style="color:#888888;"><t t-out="ctx.get('aging_note')"/></p>
+
+    <p style="color:#888888;margin-top:24px;">Sent automatically by the Synapse daily report job.</p>
+</div>
+            </field>
+        </record>
+    </data>
+
+    <!-- Reconciliation emails (cron_synapse_reconcile in
+         data/synapse_cron.xml, or the "Reconcile Synapse" dashboard
+         button). noupdate="1" like the daily report above: subject, body
+         and recipients below are starting defaults — once edited from
+         Settings > Technical > Email Templates, a module upgrade will not
+         overwrite them. Dynamic data (failure reasons, corrected-item
+         rows) is passed through the rendering context (ctx) by
+         synapse_connection.py, same pattern as the daily report. -->
+
+    <!-- Per-order: a retried send/resync/shipment job still failed, or an
+         order is marked Failed with no retryable job left. Recipients: the
+         order's salesperson (partner_to) AND fulfillment (email_to) on the
+         same message, per the required notification routing. -->
+    <data noupdate="1">
+        <record id="mail_template_synapse_reconcile_order" model="mail.template">
+            <field name="name">Synapse: Reconcile Order Issue</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Synapse sync issue on {{ object.name }} needs attention</field>
+            <field name="partner_to">{{ object.user_id.partner_id.id }}</field>
+            <field name="email_to">fulfillment@baghouseamerica.com</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
+    <p>Hello,</p>
+    <p>
+        Sales order <b t-out="object.name"/> (<t t-out="object.partner_id.display_name"/>)
+        has an unresolved Synapse sync problem — a retry did not fix it:
+    </p>
+    <ul>
+        <t t-foreach="ctx.get('reasons', [])" t-as="reason">
+            <li t-out="reason"/>
+        </t>
+    </ul>
+    <p>
+        Please review the order's Synapse tab and chatter, then use
+        "Resync Order" or "Send to Synapse" once the underlying issue is
+        addressed.
+    </p>
+    <p style="color:#888888;">Sent automatically by the Synapse reconciliation job.</p>
+</div>
+            </field>
+        </record>
+
+        <!-- Once per run: every inventory item whose Odoo on-hand was
+             force-corrected to Synapse/Freeport's actual count. Sent to
+             fulfillment only (an inventory line isn't tied to one
+             salesperson). -->
+        <record id="mail_template_synapse_reconcile_inventory" model="mail.template">
+            <field name="name">Synapse: Reconcile Inventory Summary</field>
+            <field name="model_id" ref="model_synapse_connection"/>
+            <field name="subject">Synapse inventory reconciliation: {{ ctx.get('correction_count') }} item(s) corrected</field>
+            <field name="email_to">fulfillment@baghouseamerica.com</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
+    <p>Hello,</p>
+    <p>
+        The Synapse reconciliation job corrected Odoo's on-hand quantity for
+        <b t-out="ctx.get('correction_count')"/> item(s) to match
+        Synapse/Freeport's actual count:
+    </p>
+    <table style="border-collapse:collapse;width:100%;font-size:13px;">
+        <tr>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Item</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Product</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Odoo (was)</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Synapse (now)</th>
+            <th style="text-align:left;padding:4px 8px;border-bottom:2px solid #dddddd;">Correction</th>
+        </tr>
+        <t t-foreach="ctx.get('correction_rows', [])" t-as="row">
+            <tr>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['item']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['product']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['odoo_qty']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['synapse_qty']"/></td>
+                <td style="padding:4px 8px;border-bottom:1px solid #eeeeee;"><t t-out="row['delta']"/></td>
+            </tr>
+        </t>
+    </table>
+    <p style="color:#888888;margin-top:24px;">Sent automatically by the Synapse reconciliation job.</p>
+</div>
+            </field>
+        </record>
+
+        <!-- Freeport Daily Ready Orders Report (cutoff 11:00 AM Pacific) -->
+        <record id="mail_template_freeport_ready_orders_report" model="mail.template">
+            <field name="name">Freeport: Daily Ready Orders Report</field>
+            <field name="model_id" ref="base.model_res_company"/>
+            <field name="subject">Freeport Ready Orders Report (Past 24 Hours) — {{ ctx.get('report_date') }}</field>
+            <field name="email_to">freeport@baghouseamerica.com, m.andazola@freeport-logistics.com</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;">
+    <h2 style="margin-bottom:0;">Freeport Ready Orders Report</h2>
+    <p style="color:#666666;margin-top:4px;">
+        Orders with status changed to "Ready" from successful availability checks in the past 24 hours (11:00 AM cutoff).
+    </p>
+    <p style="color:#888888;margin-top:2px;">Report Date: <t t-out="ctx.get('report_date')"/></p>
+
+    <table t-if="ctx.get('rows')" style="border-collapse:collapse;width:100%;max-width:800px;font-size:13px;margin-top:16px;">
+        <thead>
+            <tr style="background-color:#f8f9fa;">
+                <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #dddddd;">SO</th>
+                <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #dddddd;">Customer</th>
+                <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #dddddd;">Item</th>
+                <th style="text-align:right;padding:8px 12px;border-bottom:2px solid #dddddd;">Qty</th>
+            </tr>
+        </thead>
+        <tbody>
+            <t t-foreach="ctx.get('rows')" t-as="row">
+                <tr>
+                    <td style="padding:6px 12px;border-bottom:1px solid #eeeeee;"><t t-out="row['so']"/></td>
+                    <td style="padding:6px 12px;border-bottom:1px solid #eeeeee;"><t t-out="row['customer']"/></td>
+                    <td style="padding:6px 12px;border-bottom:1px solid #eeeeee;"><t t-out="row['item']"/></td>
+                    <td style="text-align:right;padding:6px 12px;border-bottom:1px solid #eeeeee;"><t t-out="row['qty']"/></td>
+                </tr>
+            </t>
+        </tbody>
+    </table>
+    <p t-if="not ctx.get('rows')" style="color:#888888;margin-top:16px;">No orders changed to "Ready" in the past 24 hours.</p>
+
+    <p style="color:#888888;margin-top:24px;font-size:12px;">Sent automatically by Odoo BHA Synapse integration.</p>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

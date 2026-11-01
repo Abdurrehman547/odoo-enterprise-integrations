@@ -1,0 +1,151 @@
+<mxfile host="app.diagrams.net" agent="BHA Synapse Flow" version="24.7.7">
+  <diagram id="synapse-flow" name="Synapse Integration Workflow">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1150" pageHeight="1750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" value="&lt;b&gt;Odoo to Synapse Integration Workflow&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size:13px;font-weight:normal;color:#4b5563;'&gt;From Order Creation &amp;amp; 'Send to Synapse' &amp;rarr; Warehouse Picking &amp;rarr; Shipment &amp;amp; Tracking Created &amp;rarr; Delivery Validated&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=17;fontColor=#111827;" vertex="1">
+          <mxGeometry as="geometry" x="50" y="20" width="1040" height="45" />
+        </mxCell>
+        <mxCell id="lane_odoo" parent="1" value="&lt;b&gt;Odoo 18 (ERP)&lt;/b&gt;" style="swimlane;html=1;horizontal=0;startSize=32;fontSize=15;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;swimlaneFillColor=#fcfdfe;rounded=1;shadow=0;" vertex="1">
+          <mxGeometry as="geometry" x="50" y="80" width="480" height="1620" />
+        </mxCell>
+        <mxCell id="lane_synapse" parent="1" value="&lt;b&gt;Synapse Anywhere (Freeport WMS)&lt;/b&gt;" style="swimlane;html=1;horizontal=0;startSize=32;fontSize=15;fontStyle=1;fillColor=#b0e3e6;strokeColor=#0e8088;swimlaneFillColor=#fcfefe;rounded=1;shadow=0;" vertex="1">
+          <mxGeometry as="geometry" x="570" y="80" width="520" height="1620" />
+        </mxCell>
+        <mxCell id="n1" parent="1" value="&lt;b&gt;Sales Order Confirmed&lt;/b&gt;&lt;br/&gt;Customer order approved in Odoo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="150" y="120" width="300" height="50" />
+        </mxCell>
+        <mxCell id="n2" parent="1" value="&lt;b&gt;Stock Available at Freeport?&lt;/b&gt;&lt;br/&gt;(Checks Synapse on-hand snapshot)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="175" y="200" width="250" height="80" />
+        </mxCell>
+        <mxCell id="n3" parent="1" value="&lt;b&gt;Delivery Order Created (WH/OUT)&lt;/b&gt;&lt;br/&gt;Fulfillment assigned to Freeport warehouse" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="320" width="340" height="50" />
+        </mxCell>
+        <mxCell id="n4" parent="1" value="&lt;b&gt;Order Split / Dropship PO:&lt;/b&gt;&lt;br/&gt;In-stock items &amp;rarr; Delivery Order&lt;br/&gt;Shortfall items &amp;rarr; Dropship PO to Vendor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="405" width="340" height="55" />
+        </mxCell>
+        <mxCell id="n5" parent="1" value="&lt;b&gt;Action: Click 'Send to Synapse'&lt;/b&gt;&lt;br/&gt;User manually clicks button on the Sales Order" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=13;strokeWidth=2;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="495" width="340" height="55" />
+        </mxCell>
+        <mxCell id="n6" parent="1" value="&lt;b&gt;Payload Built &amp;amp; Dispatched&lt;/b&gt;&lt;br/&gt;• Maps Carrier &amp;amp; Delivery Service&lt;br/&gt;• Truncates text fields to Synapse schema limits&lt;br/&gt;• Calls &lt;code&gt;POST /orders/create-order&lt;/code&gt; (Type O)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="585" width="340" height="65" />
+        </mxCell>
+        <mxCell id="n7" parent="1" value="&lt;b&gt;Accepted by Synapse API?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="185" y="685" width="230" height="75" />
+        </mxCell>
+        <mxCell id="n8" parent="1" value="&lt;b&gt;Error Alert &amp;amp; Chatter Note&lt;/b&gt;&lt;br/&gt;API code logged, team alerted to fix &amp;amp; retry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="795" width="340" height="50" />
+        </mxCell>
+        <mxCell id="n12" parent="1" value="&lt;b&gt;Automated Status Polling (Every 45 Min)&lt;/b&gt;&lt;br/&gt;Odoo scheduled job polls &lt;code&gt;orders/order-info&lt;/code&gt;&lt;br/&gt;(or user clicks 'Refresh Synapse Status')" style="shape=note;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;size=14;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="1030" width="340" height="55" />
+        </mxCell>
+        <mxCell id="n13" parent="1" value="&lt;b&gt;Shipment Created in Odoo (synapse.shipment)&lt;/b&gt;&lt;br/&gt;• Order marked &lt;b&gt;Shipped&lt;/b&gt; in Odoo&lt;br/&gt;• Carrier, Tracking Number &amp;amp; Pro # stamped on SO &amp;amp; Picking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;strokeWidth=2;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="1120" width="340" height="60" />
+        </mxCell>
+        <mxCell id="n14" parent="1" value="&lt;b&gt;Auto-Validate Delivery Enabled?&lt;/b&gt;&lt;br/&gt;(Setting on Synapse Connection)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="175" y="1215" width="250" height="75" />
+        </mxCell>
+        <mxCell id="n15" parent="1" value="&lt;b&gt;Delivery Validated Automatically&lt;/b&gt;&lt;br/&gt;Odoo Delivery Order moves to 'Done'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="1325" width="340" height="45" />
+        </mxCell>
+        <mxCell id="n15b" parent="1" value="&lt;b&gt;Delivery Validated Manually&lt;/b&gt;&lt;br/&gt;Warehouse user clicks 'Validate' on Picking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="1395" width="340" height="45" />
+        </mxCell>
+        <mxCell id="n16" parent="1" value="&lt;b&gt;Generate &amp;amp; Upload Packing Slip&lt;/b&gt;&lt;br/&gt;Generates Delivery Slip PDF and uploads via&lt;br/&gt;&lt;code&gt;POST /attachments/upload&lt;/code&gt; to Synapse WMS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="130" y="1475" width="340" height="55" />
+        </mxCell>
+        <mxCell id="n17" parent="1" value="&lt;b&gt;All Items Fulfilled?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="185" y="1560" width="230" height="70" />
+        </mxCell>
+        <mxCell id="n18" parent="1" value="&lt;b&gt;Backorder Created&lt;/b&gt;&lt;br/&gt;Remaining items ship later" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="100" y="1660" width="180" height="40" />
+        </mxCell>
+        <mxCell id="n19" parent="1" value="&lt;b&gt;Order Complete &amp;amp; Fulfilled!&lt;/b&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" vertex="1">
+          <mxGeometry as="geometry" x="320" y="1655" width="200" height="45" />
+        </mxCell>
+        <mxCell id="s9" parent="1" value="&lt;b&gt;Order Created in Synapse WMS&lt;/b&gt;&lt;br/&gt;Synapse returns &lt;code&gt;orderid&lt;/code&gt;&lt;br/&gt;Status: &lt;b&gt;Entered (1)&lt;/b&gt; &amp;rarr; &lt;b&gt;Committed (2)&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="660" y="695" width="360" height="55" />
+        </mxCell>
+        <mxCell id="s10" parent="1" value="&lt;b&gt;Warehouse Floor Execution&lt;/b&gt;&lt;br/&gt;• Status: &lt;b&gt;Released (4)&lt;/b&gt; &amp;rarr; &lt;b&gt;Picking (5)&lt;/b&gt; &amp;rarr; &lt;b&gt;Picked (6)&lt;/b&gt;&lt;br/&gt;• Floor staff picks goods and packs cartons" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;fontSize=12;" vertex="1">
+          <mxGeometry as="geometry" x="660" y="815" width="360" height="65" />
+        </mxCell>
+        <mxCell id="s11" parent="1" value="&lt;b&gt;Carrier Dispatch &amp;amp; Shipped&lt;/b&gt;&lt;br/&gt;• Carrier departs dock with freight / parcels&lt;br/&gt;• Status updated to &lt;b&gt;Shipped (9)&lt;/b&gt;&lt;br/&gt;• Synapse records &lt;b&gt;Tracking Number &amp;amp; Pro #&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;strokeWidth=2;" vertex="1">
+          <mxGeometry as="geometry" x="660" y="935" width="360" height="70" />
+        </mxCell>
+        <mxCell id="s20" parent="1" value="&lt;b&gt;Packing Slip PDF Attached to Order&lt;/b&gt;&lt;br/&gt;Stored in Synapse as official warehouse document" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="660" y="1475" width="360" height="55" />
+        </mxCell>
+        <mxCell id="e1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n1" target="n2">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e2" parent="1" value="Full stock" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n2" target="n3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e3" parent="1" value="Partial / Out" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n2" target="n4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e4" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n3" target="n5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e5" parent="1" value="stock portion" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n4" target="n5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e6" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n5" target="n6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e7" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n6" target="n7">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e8" parent="1" value="No (Error)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#dc2626;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n7" target="n8">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e9" parent="1" value="Fix &amp; Retry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#dc2626;strokeWidth=2;endArrow=classic;endFill=1;dashed=1;" edge="1" source="n8" target="n5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e10" parent="1" value="Yes (Create Order)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16a34a;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n7" target="s9">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e11" parent="1" value="Release for picking" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0d9488;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="s9" target="s10">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e12" parent="1" value="Goods loaded &amp;amp; carrier assigned" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0d9488;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="s10" target="s11">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e13" parent="1" value="Poll Shipped Status &amp;amp; Tracking" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="s11" target="n12">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e14" parent="1" value="Status Shipped (9) detected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n12" target="n13">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e15" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n13" target="n14">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e16" parent="1" value="Yes (Auto)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16a34a;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n14" target="n15">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e17" parent="1" value="No (Manual)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n14" target="n15b">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e18" parent="1" value="Delivery Done" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n15" target="n16">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e19" parent="1" value="Delivery Done" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n15b" target="n16">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e20" parent="1" value="Upload PDF to Synapse" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n16" target="s20">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e21" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n16" target="n17">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e22" parent="1" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n17" target="n18">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e23" parent="1" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16a34a;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" source="n17" target="n19">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

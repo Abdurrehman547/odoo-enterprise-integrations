@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="cron_synapse_pull_inventory" model="ir.cron">
+            <field name="name">Synapse: Pull Inventory</field>
+            <field name="model_id" ref="model_synapse_connection"/>
+            <field name="state">code</field>
+            <field name="active">False</field>
+            <field name="code">model.cron_pull_inventory()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=6, minute=0, second=0)"/>
+        </record>
+
+        <record id="cron_synapse_pull_shipments" model="ir.cron">
+            <field name="name">Synapse: Pull Shipments</field>
+            <field name="model_id" ref="model_synapse_connection"/>
+            <field name="state">code</field>
+            <field name="active">False</field>
+            <field name="code">model.cron_pull_shipments()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">4</field>
+            <field name="interval_type">hours</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(hours=4))"/>
+        </record>
+
+        <record id="cron_synapse_push_orders" model="ir.cron">
+            <field name="name">Synapse: Push Orders</field>
+            <field name="model_id" ref="model_synapse_connection"/>
+            <field name="state">code</field>
+            <field name="active">False</field>
+            <field name="code">model.cron_push_orders()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=23, minute=0, second=0)"/>
+        </record>
+
+        <record id="cron_synapse_process_queue" model="ir.cron">
+            <field name="name">Synapse: Process Sync Queue</field>
+            <field name="model_id" ref="model_synapse_queue_job"/>
+            <field name="state">code</field>
+            <field name="active">False</field>
+            <field name="code">model.cron_process_queue()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">10</field>
+            <field name="interval_type">minutes</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(minutes=10))"/>
+        </record>
+
+        <!-- Daily Synapse Anywhere orders report: shipped today / generated
+             today / still open (aging). Renders and sends
+             bha_synapse.mail_template_synapse_daily_report — recipient is
+             set on that template (Settings > Technical > Email Templates >
+             "Synapse: Daily Orders Report" > To (Emails)), not here.
+             nextcall below targets 5pm Pacific Daylight Time (UTC-7) = 00:00
+             UTC the following day; during Pacific Standard Time (UTC-8,
+             roughly Nov-Mar) adjust nextcall by an hour in Settings >
+             Technical > Scheduled Actions, since interval-based cron does
+             not auto-adjust for DST. -->
+        <record id="cron_synapse_daily_report" model="ir.cron">
+            <field name="name">Synapse: Daily Orders Report</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="state">code</field>
+            <field name="active">True</field>
+            <field name="code">model.cron_send_synapse_daily_report()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0)"/>
+        </record>
+
+        <!-- Reconciliation: retries stuck sends/receipts (failed order /
+             resync / shipment jobs), force-corrects any inventory variance
+             against Synapse, and emails the affected salespeople + fulfillment
+             @baghouseamerica.com. Runs before the daily report (below) so a
+             fixed order can show up correctly in that same day's report. -->
+        <record id="cron_synapse_reconcile" model="ir.cron">
+            <field name="name">Synapse: Reconcile Orders &amp; Inventory</field>
+            <field name="model_id" ref="model_synapse_connection"/>
+            <field name="state">code</field>
+            <field name="active">True</field>
+            <field name="code">model.cron_reconcile_synapse()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=23, minute=30, second=0)"/>
+        </record>
+
+        <!-- Status polling: every 45 minutes, refresh the granular Synapse
+             order status (order-info) of every order already sent but not
+             yet shipped/cancelled — the same call as the 'Refresh Synapse
+             Status' button, automated. Detects Released/Picking/Shipped and
+             Synapse-side cancellations, and stamps the shipped date when an
+             order first turns Shipped. -->
+        <record id="cron_synapse_refresh_order_statuses" model="ir.cron">
+            <field name="name">Synapse: Refresh Order Statuses (45 min)</field>
+            <field name="model_id" ref="model_synapse_connection"/>
+            <field name="state">code</field>
+            <field name="active">True</field>
+            <field name="code">model.cron_refresh_order_statuses()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">45</field>
+            <field name="interval_type">minutes</field>
+            <field name="nextcall" eval="DateTime.now() + timedelta(minutes=45)"/>
+        </record>
+
+        <!-- Automated 45-minute check: retry past orders that were not originally
+             processed due to insufficient inventory. Refreshes live stock from
+             Synapse, checks Odoo stock availability, and pushes eligible orders. -->
+        <record id="cron_synapse_retry_insufficient_inventory_orders" model="ir.cron">
+            <field name="name">Synapse: Retry Insufficient Inventory Orders (45 min)</field>
+            <field name="model_id" ref="model_synapse_connection"/>
+            <field name="state">code</field>
+            <field name="active">True</field>
+            <field name="code">model.cron_retry_insufficient_inventory_orders()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">45</field>
+            <field name="interval_type">minutes</field>
+            <field name="nextcall" eval="DateTime.now() + timedelta(minutes=45)"/>
+        </record>
+
+        <record id="cron_synapse_vacuum_jobs" model="ir.cron">
+            <field name="name">Synapse: Vacuum Done Queue Jobs</field>
+            <field name="model_id" ref="model_synapse_queue_job"/>
+            <field name="state">code</field>
+            <field name="active">False</field>
+            <field name="code">model.cron_vacuum_jobs()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=2, minute=0, second=0)"/>
+        </record>
+
+        <!-- Freeport Daily Ready Orders Report: each day at 11:00 AM Pacific (18:00 UTC)
+             summarizing orders that changed to 'Ready' from successful availability checks
+             over the past 24 hours. Sent to freeport@baghouseamerica.com and
+             m.andazola@freeport-logistics.com. -->
+        <record id="cron_freeport_ready_orders_report" model="ir.cron">
+            <field name="name">Freeport: Daily Ready Orders Report (11 AM)</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="state">code</field>
+            <field name="active">True</field>
+            <field name="code">model.cron_send_freeport_ready_orders_report()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=18, minute=0, second=0)"/>
+        </record>
+    </data>
+</odoo>
+

@@ -1,0 +1,107 @@
+/* Synapse dashboard kanban styling. Rebuilt after the source loss — classes
+   match the kanban template in views/synapse_dashboard_views.xml. */
+
+.o_synapse_dashboard {
+    padding: 16px;
+}
+
+/* The kanban renderer keeps invisible ghost placeholder records in the
+   same flex row as the real card. Give the real card the full row and
+   collapse the ghosts, otherwise the card shrinks to a narrow column
+   and the tiles stack vertically. */
+.o_synapse_dashboard .o_kanban_record:not(.o_kanban_ghost) {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+}
+
+.o_synapse_dashboard .o_kanban_record.o_kanban_ghost {
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    margin: 0;
+}
+
+.synapse_dash_wrap {
+    width: 100%;
+}
+
+.synapse_dash_toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.synapse_dash_section_title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 16px 0 8px 0;
+    color: var(--o-gray-900, #374151);
+}
+
+.synapse_slider {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.synapse_tile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 180px;
+    padding: 14px 16px;
+    border: 1px solid var(--o-gray-200, #e5e7eb);
+    border-radius: 8px;
+    background: var(--o-view-background-color, #ffffff);
+    text-align: left;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.synapse_tile:hover {
+    border-color: var(--o-primary, #714B67);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.synapse_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.synapse_icon i {
+    color: #ffffff;
+}
+
+.c_plug   { background: #714B67; }
+.c_cubes  { background: #017E84; }
+.c_truck  { background: #5F8B3D; }
+.c_cart   { background: #C77B3B; }
+.c_new    { background: #3B6E8F; }
+.c_progress { background: #B4823C; }
+.c_done   { background: #3D9A50; }
+.c_failed { background: #C0504D; }
+.c_log    { background: #8A6D3B; }
+
+.synapse_cont {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.synapse_count {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.synapse_label {
+    font-size: 0.85rem;
+    color: var(--o-gray-600, #6b7280);
+}

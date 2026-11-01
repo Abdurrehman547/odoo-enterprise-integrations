@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_google_drive_upload_wizard_form" model="ir.ui.view">
+        <field name="name">google.drive.upload.wizard.form</field>
+        <field name="model">google.drive.upload.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Upload to Google Drive">
+                <sheet>
+                    <field name="res_model" invisible="1"/>
+                    <field name="res_id" invisible="1"/>
+                    <field name="has_existing_attachments" invisible="1"/>
+
+                    <group>
+                        <group invisible="not partner_id">
+                            <field name="partner_id" readonly="1" options="{'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="gdrive_folder_link" widget="url" readonly="1" string="Destination Folder"/>
+                        </group>
+                    </group>
+
+                    <div class="alert alert-info py-2" role="alert" invisible="has_existing_attachments">
+                        <i class="fa fa-info-circle me-1"/>
+                        No existing attachments found on this record. You can attach and upload a new file below.
+                    </div>
+
+                    <group string="Select Existing Attachments" invisible="not has_existing_attachments">
+                        <field name="attachment_ids" widget="many2many" nolabel="1">
+                            <list create="0">
+                                <field name="name" string="File Name"/>
+                                <field name="mimetype" string="Type"/>
+                                <field name="file_size" string="Size"/>
+                                <field name="create_date" string="Date Added"/>
+                                <field name="gdrive_file_link" widget="url" string="Drive Link" optional="show"/>
+                            </list>
+                        </field>
+                    </group>
+
+                    <separator string="Upload New File"/>
+                    <group>
+                        <field name="upload_new_file" string="Attach &amp; Upload New File"/>
+                        <field name="file_data" filename="file_name" invisible="not upload_new_file" string="Choose File"/>
+                        <field name="file_name" invisible="not upload_new_file" string="File Name"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_upload"
+                            string="Upload to Google Drive"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-cloud-upload"
+                            data-hotkey="q"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"
+                            data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

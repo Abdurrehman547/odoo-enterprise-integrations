@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_purchase_order_form_synapse" model="ir.ui.view">
+        <field name="name">purchase.order.form.synapse</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_send_to_synapse" string="Send to Synapse"
+                        type="object" class="oe_highlight"
+                        invisible="synapse_orderid or state not in ('purchase', 'done')"/>
+                <button name="action_resync_synapse" string="Resync Order (Replace)"
+                        type="object"
+                        confirm="This cancels the current Synapse inbound order and creates a new one from this purchase order's current lines and deliver-to address. The Synapse Order ID will change. Continue?"
+                        invisible="not synapse_orderid or synapse_status != 'sent'"/>
+                <button name="action_refresh_synapse_status" string="Refresh Synapse Status"
+                        type="object" invisible="not synapse_orderid"/>
+                <button name="action_cancel_synapse" string="Cancel in Synapse"
+                        type="object"
+                        confirm="Cancel this purchase order's inbound order in Synapse? The purchase order itself is NOT cancelled in Odoo."
+                        invisible="not synapse_orderid or synapse_status == 'cancelled'"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="synapse_page" string="Synapse Anywhere">
+                    <group>
+                        <group name="synapse_sync" string="Synchronization">
+                            <field name="synapse_to_send"/>
+                            <field name="synapse_connection_id"/>
+                            <field name="synapse_status"/>
+                            <field name="synapse_order_status"/>
+                        </group>
+                        <group name="synapse_refs" string="Synapse References">
+                            <field name="synapse_orderid"/>
+                            <field name="synapse_shipid"/>
+                            <field name="synapse_wave"/>
+                            <field name="synapse_received_date"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Dedicated Synapse inbound list (Odoo -> Synapse purchase orders) -->
+    <record id="view_purchase_order_synapse_list" model="ir.ui.view">
+        <field name="name">purchase.order.synapse.list</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <list string="Synapse Inbound Orders" create="false"
+                  decoration-success="synapse_status == 'received'"
+                  decoration-info="synapse_status == 'sent'"
+                  decoration-danger="synapse_status == 'failed'"
+                  decoration-warning="synapse_to_send and not synapse_orderid"
+                  decoration-muted="synapse_status == 'cancelled'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_order"/>
+                <field name="state"/>
+                <field name="synapse_to_send" string="To Send"/>
+                <field name="synapse_status"/>
+                <field name="synapse_order_status"/>
+                <field name="synapse_orderid"/>
+                <field name="synapse_shipid"/>
+                <field name="synapse_wave" optional="hide"/>
+                <field name="synapse_received_date" optional="hide"/>
+                <field name="synapse_connection_id" optional="hide"/>
+                <field name="amount_total" sum="Total"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_synapse_search" model="ir.ui.view">
+        <field name="name">purchase.order.synapse.search</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="synapse_orderid"/>
+                <filter name="to_send" string="To Send"
+                        domain="[('synapse_to_send', '=', True)]"/>
+                <filter name="sent" string="Sent to Synapse"
+                        domain="[('synapse_status', '=', 'sent')]"/>
+                <filter name="received" string="Received"
+                        domain="[('synapse_status', '=', 'received')]"/>
+                <filter name="in_synapse" string="In Synapse"
+                        domain="[('synapse_orderid', '!=', False)]"/>
+                <separator/>
+                <filter name="confirmed" string="Confirmed"
+                        domain="[('state', 'in', ['purchase', 'done'])]"/>
+                <group expand="0" string="Group By">
+                    <filter name="g_status" string="Synapse Status"
+                            context="{'group_by': 'synapse_status'}"/>
+                    <filter name="g_conn" string="Connection"
+                            context="{'group_by': 'synapse_connection_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_synapse_purchase_orders" model="ir.actions.act_window">
+        <field name="name">Inbound Orders</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_purchase_order_synapse_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_purchase_order_synapse_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('purchase.purchase_order_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No inbound orders here yet</p>
+            <p>Purchase orders are sent <b>from Odoo to Synapse</b> as inbound
+               orders (warehouse imports) received into the connection's
+               Inbound Warehouse. Open a confirmed Purchase Order and click
+               <b>Send to Synapse</b>. Sent orders appear here with their
+               Synapse Order ID.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_synapse_purchase_orders" name="Inbound Orders"
+              parent="menu_synapse_root" action="action_synapse_purchase_orders" sequence="16"/>
+</odoo>
